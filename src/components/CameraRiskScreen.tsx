@@ -249,7 +249,7 @@ export default function CameraRiskScreen({
                   <span className="text-sm font-mono font-bold text-white">{riskData.personCount}</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[9px] text-guardian-muted font-mono tracking-wider">DENSITY</span>
+                  <span className="text-[9px] text-guardian-muted font-mono tracking-wider">EST. DENSITY</span>
                   <span className="text-sm font-mono font-bold text-white">{riskData.density.toFixed(1)} <span className="text-[10px] text-guardian-muted">p/m²</span></span>
                 </div>
                 <div className="flex flex-col">
