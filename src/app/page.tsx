@@ -52,7 +52,7 @@ export default function HomePage() {
     startCamera();
   }, [startCamera, initModel]);
 
-  const handleLoadSampleVideo = useCallback((url: string = '/dense-crowd.webm') => {
+  const handleLoadSampleVideo = useCallback((url: string = '/concert-crowd.webm') => {
     setDemoScenario('off');
     initModel();
     loadSampleVideo(url);

@@ -29,7 +29,7 @@ export default function CameraRiskScreen({
   videoRef,
   isActive,
   videoMode = 'none',
-  currentSampleUrl = '/dense-crowd.webm',
+  currentSampleUrl = '/concert-crowd.webm',
   demoScenario,
   onSelectScenario,
   riskData,
@@ -365,11 +365,11 @@ export default function CameraRiskScreen({
               ))}
               {onLoadSampleVideo && (
                 <button
-                  onClick={() => onLoadSampleVideo('/dense-crowd.webm')}
+                  onClick={() => onLoadSampleVideo('/concert-crowd.webm')}
                   className="px-2.5 py-1 bg-guardian-cyan/20 text-guardian-cyan hover:bg-guardian-cyan/30 text-[11px] font-bold font-mono rounded transition-colors border border-guardian-cyan/40 flex items-center gap-1 whitespace-nowrap"
-                  title="Switch to real crowd video detection"
+                  title="Switch to real festival event video detection"
                 >
-                  <Video size={12} /> REAL VIDEO (30+)
+                  <Video size={12} /> REAL FESTIVAL
                 </button>
               )}
             </div>
@@ -386,6 +386,16 @@ export default function CameraRiskScreen({
               {videoMode === 'sample' ? (
                 <>
                   <span className="text-[9px] font-mono text-guardian-cyan uppercase tracking-wider hidden sm:inline">VIDEO:</span>
+                  <button
+                    onClick={() => onLoadSampleVideo?.('/concert-crowd.webm')}
+                    className={`px-2 py-1 text-[11px] font-bold font-mono rounded transition-colors whitespace-nowrap flex items-center gap-1 ${
+                      currentSampleUrl === '/concert-crowd.webm'
+                        ? 'bg-guardian-cyan text-black shadow-sm font-black'
+                        : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                    }`}
+                  >
+                    FESTIVAL
+                  </button>
                   <button
                     onClick={() => onLoadSampleVideo?.('/dense-crowd.webm')}
                     className={`px-2 py-1 text-[11px] font-bold font-mono rounded transition-colors whitespace-nowrap flex items-center gap-1 ${
@@ -445,26 +455,36 @@ export default function CameraRiskScreen({
             <button 
               onClick={onStartCamera}
               disabled={isModelLoading}
-              className="flex-1 py-2 px-1.5 bg-guardian-accent hover:bg-[#ff8533] disabled:opacity-50 text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1"
+              className="flex-1 py-2 px-1 bg-guardian-accent hover:bg-[#ff8533] disabled:opacity-50 text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1"
             >
-              <Camera size={13} /> LIVE CAMERA
+              <Camera size={13} /> CAMERA
             </button>
+            {onLoadSampleVideo && (
+              <button 
+                onClick={() => onLoadSampleVideo('/concert-crowd.webm')}
+                disabled={isModelLoading}
+                className="flex-1 py-2 px-1 bg-guardian-cyan hover:bg-[#38bdf8] disabled:opacity-50 text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1 shadow-sm shadow-cyan-500/20"
+                title="Run real AI vision on festival concert crowd footage"
+              >
+                <Video size={13} /> FESTIVAL
+              </button>
+            )}
             {onLoadSampleVideo && (
               <button 
                 onClick={() => onLoadSampleVideo('/dense-crowd.webm')}
                 disabled={isModelLoading}
-                className="flex-1 py-2 px-1.5 bg-guardian-cyan hover:bg-[#38bdf8] disabled:opacity-50 text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1 shadow-sm shadow-cyan-500/20"
-                title="Run real AI vision on high-density festival crowd footage (30+ people)"
+                className="flex-1 py-2 px-1 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-300 text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1"
+                title="Run real AI vision on surge crowd footage (30+ people)"
               >
-                <Video size={13} /> DENSE SURGE (30+)
+                <Activity size={13} /> SURGE (30+)
               </button>
             )}
             <button 
               onClick={() => onSelectScenario('surge')}
               disabled={isModelLoading}
-              className="flex-1 py-2 px-1.5 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-300 text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1"
+              className="py-2 px-1.5 bg-zinc-900 hover:bg-zinc-800 disabled:opacity-50 text-zinc-400 text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1 border border-white/5"
             >
-              <Sparkles size={13} /> PRESETS
+              <Sparkles size={13} /> PRESET
             </button>
           </div>
         )}
