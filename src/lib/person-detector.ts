@@ -24,6 +24,10 @@ export function isModelLoaded(): boolean {
   return model !== null;
 }
 
+let offscreenCanvas: HTMLCanvasElement | null = null;
+let offscreenCtx: CanvasRenderingContext2D | null = null;
+const MAX_INFERENCE_WIDTH = 416;
+
 export async function detectPersons(
   input: HTMLVideoElement | HTMLCanvasElement | ImageData
 ): Promise<BoundingBox[]> {
@@ -31,15 +35,45 @@ export async function detectPersons(
     throw new Error('Model not loaded. Call loadDetector() first.');
   }
 
-  const predictions = await model.detect(input);
+  let target: HTMLVideoElement | HTMLCanvasElement | ImageData = input;
+  let scaleRatio = 1.0;
+
+  // Mobile optimization: downscale high-res video to 416px before passing to WebGL
+  if (typeof window !== 'undefined' && input instanceof HTMLVideoElement && input.videoWidth > 0) {
+    const origW = input.videoWidth;
+    const origH = input.videoHeight;
+
+    if (origW > MAX_INFERENCE_WIDTH) {
+      if (!offscreenCanvas) {
+        offscreenCanvas = document.createElement('canvas');
+        offscreenCtx = offscreenCanvas.getContext('2d', { willReadFrequently: true });
+      }
+
+      scaleRatio = MAX_INFERENCE_WIDTH / origW;
+      const targetW = MAX_INFERENCE_WIDTH;
+      const targetH = Math.round(origH * scaleRatio);
+
+      if (offscreenCanvas.width !== targetW || offscreenCanvas.height !== targetH) {
+        offscreenCanvas.width = targetW;
+        offscreenCanvas.height = targetH;
+      }
+
+      if (offscreenCtx) {
+        offscreenCtx.drawImage(input, 0, 0, targetW, targetH);
+        target = offscreenCanvas;
+      }
+    }
+  }
+
+  const predictions = await model.detect(target);
 
   return predictions
     .filter((p) => p.class === 'person' && p.score >= 0.3)
     .map((p) => ({
-      x: p.bbox[0],
-      y: p.bbox[1],
-      width: p.bbox[2],
-      height: p.bbox[3],
+      x: p.bbox[0] / scaleRatio,
+      y: p.bbox[1] / scaleRatio,
+      width: p.bbox[2] / scaleRatio,
+      height: p.bbox[3] / scaleRatio,
       confidence: p.score,
       label: 'person',
     }));

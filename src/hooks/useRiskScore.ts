@@ -133,31 +133,49 @@ export function useRiskScore(
     return () => clearInterval(simInterval);
   }, [demoScenario]);
 
-  // Real camera inference loop
+  // Real camera inference loop with sequential non-overlapping execution
   useEffect(() => {
     if (!isActive || !isModelReady || demoScenario !== 'off') return;
 
     const video = videoRef.current;
     if (!video) return;
 
-    intervalRef.current = setInterval(async () => {
-      if (video.readyState < 2) return;
+    let isCancelled = false;
+    let isProcessing = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
-      try {
-        const boxes = await detectPersons(video);
-        setDetections(boxes);
-        pushFrameCount(boxes.length);
-        const risk = computeRisk();
-        setRiskData(risk);
-      } catch {
-        // Detection failed this frame, skip
+    const runInferenceCycle = async () => {
+      if (isCancelled) return;
+
+      if (!isProcessing && video.readyState >= 2 && !video.paused && !video.ended) {
+        isProcessing = true;
+        try {
+          const boxes = await detectPersons(video);
+          if (!isCancelled) {
+            setDetections(boxes);
+            pushFrameCount(boxes.length);
+            const risk = computeRisk();
+            setRiskData(risk);
+          }
+        } catch {
+          // Detection skipped this frame
+        } finally {
+          isProcessing = false;
+        }
       }
-    }, DETECTION_INTERVAL_MS);
+
+      if (!isCancelled) {
+        // 250ms cooldown AFTER frame finishes: prevents tensor queuing and mobile GPU throttling
+        timeoutId = setTimeout(runInferenceCycle, 250);
+      }
+    };
+
+    runInferenceCycle();
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
+      isCancelled = true;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
       }
     };
   }, [isActive, isModelReady, videoRef, demoScenario]);

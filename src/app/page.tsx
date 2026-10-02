@@ -69,10 +69,13 @@ export default function HomePage() {
   const { alerts, addAlert, clearAlerts, dismissAlert } = useAlerts();
   const { isActive: isRelayActive, peers, peerCount } = useMeshRelay();
 
-  // Request notification permission and preload AI model in background
+  // Request notification permission and preload AI model after initial render settles
   useEffect(() => {
     requestNotificationPermission();
-    initModel();
+    const timer = setTimeout(() => {
+      initModel();
+    }, 1200);
+    return () => clearTimeout(timer);
   }, [initModel]);
 
   // Auto-send crowd risk alert when score goes critical

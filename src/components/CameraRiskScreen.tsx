@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, CameraOff, RotateCcw, Loader2, Activity, Sparkles, Video } from 'lucide-react';
 import type { BoundingBox, RiskData, DemoScenario } from '@/types';
@@ -63,6 +63,84 @@ export default function CameraRiskScreen({
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (riskData.score / 100) * circumference;
 
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+    const targetW = Math.round(rect.width * dpr);
+    const targetH = Math.round(rect.height * dpr);
+
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, rect.width, rect.height);
+
+    if (!showContent || detections.length === 0) {
+      ctx.restore();
+      return;
+    }
+
+    let strokeColor = '#22D3EE'; // cyan
+    if (riskData.level === 'danger' || riskData.level === 'critical') {
+      strokeColor = '#EF4444'; // red
+    } else if (riskData.level === 'warning') {
+      strokeColor = '#F59E0B'; // amber
+    }
+
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+
+    const video = videoRef.current;
+    const videoW = video?.videoWidth || 640;
+    const videoH = video?.videoHeight || 480;
+    const containerW = rect.width;
+    const containerH = rect.height;
+
+    // Uniform object-cover scaling with centering
+    const scale = Math.max(containerW / videoW, containerH / videoH);
+    const renderedW = videoW * scale;
+    const renderedH = videoH * scale;
+    const offsetX = (containerW - renderedW) / 2;
+    const offsetY = (containerH - renderedH) / 2;
+
+    for (let i = 0; i < detections.length; i++) {
+      const box = detections[i];
+      let bx = 0;
+      let by = 0;
+      let bw = 0;
+      let bh = 0;
+
+      if (isSimulating) {
+        bx = (box.x / 640) * containerW;
+        by = (box.y / 480) * containerH;
+        bw = (box.width / 640) * containerW;
+        bh = (box.height / 480) * containerH;
+      } else {
+        bx = offsetX + box.x * scale;
+        by = offsetY + box.y * scale;
+        bw = box.width * scale;
+        bh = box.height * scale;
+      }
+
+      ctx.strokeRect(bx, by, bw, bh);
+    }
+
+    ctx.restore();
+  }, [detections, showContent, isSimulating, riskData.level, videoRef]);
+
   return (
     <div className="relative w-full h-[68vh] min-h-[460px] max-h-[640px] rounded-2xl overflow-hidden bg-black border border-guardian-border shadow-2xl flex flex-col justify-between tactical-grid">
       
@@ -105,54 +183,11 @@ export default function CameraRiskScreen({
         </>
       )}
 
-      {/* Bounding Boxes */}
-      {showContent && (
-        <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
-          {detections.map((box, idx) => {
-            let severityClass = '';
-            if (riskData.level === 'danger' || riskData.level === 'critical') severityClass = 'danger';
-            else if (riskData.level === 'warning') severityClass = 'warning';
-
-            let left = '0px';
-            let top = '0px';
-            let width = '0px';
-            let height = '0px';
-
-            if (isSimulating) {
-              left = `${(box.x / 640) * 100}%`;
-              top = `${(box.y / 480) * 100}%`;
-              width = `${(box.width / 640) * 100}%`;
-              height = `${(box.height / 480) * 100}%`;
-            } else {
-              const video = videoRef.current;
-              const videoW = video?.videoWidth || 640;
-              const videoH = video?.videoHeight || 480;
-              const containerW = video?.clientWidth || 640;
-              const containerH = video?.clientHeight || 480;
-
-              // Correct object-cover scaling: uniform scale with centering offset
-              const scale = Math.max(containerW / videoW, containerH / videoH);
-              const renderedW = videoW * scale;
-              const renderedH = videoH * scale;
-              const offsetX = (containerW - renderedW) / 2;
-              const offsetY = (containerH - renderedH) / 2;
-
-              left = `${offsetX + box.x * scale}px`;
-              top = `${offsetY + box.y * scale}px`;
-              width = `${box.width * scale}px`;
-              height = `${box.height * scale}px`;
-            }
-
-            return (
-              <div
-                key={idx}
-                className={`detection-box ${severityClass} absolute transition-all duration-150`}
-                style={{ left, top, width, height }}
-              />
-            );
-          })}
-        </div>
-      )}
+      {/* High-Performance Hardware-Accelerated Bounding Boxes (Zero Layout Reflows) */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 pointer-events-none z-10 w-full h-full"
+      />
 
       {/* Top HUD */}
       <div className="relative z-20 flex justify-between p-4 pointer-events-none">
