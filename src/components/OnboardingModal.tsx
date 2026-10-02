@@ -7,28 +7,21 @@ import { Shield, Camera, Radio, AlertTriangle, Info, X } from 'lucide-react';
 export default function OnboardingModal() {
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    const seen = localStorage.getItem('fg-onboarding-seen');
-    if (!seen) {
-      setIsOpen(true);
-    }
-  }, []);
-
   const handleDismiss = () => {
     setIsOpen(false);
-    localStorage.setItem('fg-onboarding-seen', '1');
   };
 
   return (
     <>
-      {/* Re-trigger button (top-right info icon, visible when tutorial is dismissed) */}
+      {/* Re-trigger button placed cleanly in header area */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed top-[60px] right-3 z-40 w-8 h-8 rounded-full bg-guardian-surface/80 backdrop-blur-sm border border-white/10 flex items-center justify-center text-guardian-muted hover:text-guardian-text transition-colors"
-          title="Show tutorial"
+          className="fixed top-3.5 right-32 z-50 h-7 px-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 flex items-center gap-1 text-guardian-muted hover:text-white transition-colors"
+          title="Guardian Node Info & Tutorial"
         >
-          <Info className="w-4 h-4" />
+          <Info className="w-3.5 h-3.5 text-[#FF6600]" />
+          <span className="text-[10px] font-mono tracking-wider font-bold text-slate-300">INFO</span>
         </button>
       )}
 

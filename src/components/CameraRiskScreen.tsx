@@ -101,22 +101,28 @@ export default function CameraRiskScreen({
 
       {/* Bounding Boxes */}
       {showContent && (
-        <div className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
           {detections.map((box, idx) => {
             let severityClass = '';
             if (riskData.level === 'danger' || riskData.level === 'critical') severityClass = 'danger';
             else if (riskData.level === 'warning') severityClass = 'warning';
 
+            const video = videoRef.current;
+            const videoW = video?.videoWidth || 640;
+            const videoH = video?.videoHeight || 480;
+            const scaleX = isSimulating ? 1 : (video?.clientWidth || 640) / videoW;
+            const scaleY = isSimulating ? 1 : (video?.clientHeight || 480) / videoH;
+
+            const left = isSimulating ? `${(box.x / 640) * 100}%` : `${box.x * scaleX}px`;
+            const top = isSimulating ? `${(box.y / 480) * 100}%` : `${box.y * scaleY}px`;
+            const width = isSimulating ? `${(box.width / 640) * 100}%` : `${box.width * scaleX}px`;
+            const height = isSimulating ? `${(box.height / 480) * 100}%` : `${box.height * scaleY}px`;
+
             return (
               <div
                 key={idx}
-                className={`detection-box ${severityClass} absolute border-2`}
-                style={{
-                  left: `${box.x * 100}%`,
-                  top: `${box.y * 100}%`,
-                  width: `${box.width * 100}%`,
-                  height: `${box.height * 100}%`,
-                }}
+                className={`detection-box ${severityClass} absolute transition-all duration-300`}
+                style={{ left, top, width, height }}
               />
             );
           })}
