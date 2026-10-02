@@ -30,6 +30,7 @@ export default function HomePage() {
     videoRef,
     isActive: isCameraActive,
     videoMode,
+    currentSampleUrl,
     error: cameraError,
     startCamera,
     loadSampleVideo,
@@ -51,10 +52,10 @@ export default function HomePage() {
     startCamera();
   }, [startCamera, initModel]);
 
-  const handleLoadSampleVideo = useCallback(() => {
+  const handleLoadSampleVideo = useCallback((url: string = '/dense-crowd.webm') => {
     setDemoScenario('off');
     initModel();
-    loadSampleVideo();
+    loadSampleVideo(url);
   }, [loadSampleVideo, initModel]);
 
   const handleSelectScenario = useCallback((scenario: DemoScenario) => {
@@ -68,10 +69,11 @@ export default function HomePage() {
   const { alerts, addAlert, clearAlerts, dismissAlert } = useAlerts();
   const { isActive: isRelayActive, peers, peerCount } = useMeshRelay();
 
-  // Request notification permission on mount
+  // Request notification permission and preload AI model in background
   useEffect(() => {
     requestNotificationPermission();
-  }, []);
+    initModel();
+  }, [initModel]);
 
   // Auto-send crowd risk alert when score goes critical
   useEffect(() => {
@@ -120,6 +122,7 @@ export default function HomePage() {
               videoRef={videoRef}
               isActive={isCameraActive}
               videoMode={videoMode}
+              currentSampleUrl={currentSampleUrl}
               demoScenario={demoScenario}
               onSelectScenario={handleSelectScenario}
               riskData={riskData}

@@ -10,6 +10,7 @@ interface CameraRiskScreenProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   isActive: boolean;
   videoMode?: 'camera' | 'sample' | 'none';
+  currentSampleUrl?: string;
   demoScenario: DemoScenario;
   onSelectScenario: (scenario: DemoScenario) => void;
   riskData: RiskData;
@@ -17,7 +18,7 @@ interface CameraRiskScreenProps {
   isModelReady: boolean;
   isModelLoading: boolean;
   onStartCamera: () => void;
-  onLoadSampleVideo?: () => void;
+  onLoadSampleVideo?: (url?: string) => void;
   onStopCamera: () => void;
   onToggleFacing: () => void;
   onInitModel: () => void;
@@ -28,6 +29,7 @@ export default function CameraRiskScreen({
   videoRef,
   isActive,
   videoMode = 'none',
+  currentSampleUrl = '/dense-crowd.webm',
   demoScenario,
   onSelectScenario,
   riskData,
@@ -111,21 +113,40 @@ export default function CameraRiskScreen({
             if (riskData.level === 'danger' || riskData.level === 'critical') severityClass = 'danger';
             else if (riskData.level === 'warning') severityClass = 'warning';
 
-            const video = videoRef.current;
-            const videoW = video?.videoWidth || 640;
-            const videoH = video?.videoHeight || 480;
-            const scaleX = isSimulating ? 1 : (video?.clientWidth || 640) / videoW;
-            const scaleY = isSimulating ? 1 : (video?.clientHeight || 480) / videoH;
+            let left = '0px';
+            let top = '0px';
+            let width = '0px';
+            let height = '0px';
 
-            const left = isSimulating ? `${(box.x / 640) * 100}%` : `${box.x * scaleX}px`;
-            const top = isSimulating ? `${(box.y / 480) * 100}%` : `${box.y * scaleY}px`;
-            const width = isSimulating ? `${(box.width / 640) * 100}%` : `${box.width * scaleX}px`;
-            const height = isSimulating ? `${(box.height / 480) * 100}%` : `${box.height * scaleY}px`;
+            if (isSimulating) {
+              left = `${(box.x / 640) * 100}%`;
+              top = `${(box.y / 480) * 100}%`;
+              width = `${(box.width / 640) * 100}%`;
+              height = `${(box.height / 480) * 100}%`;
+            } else {
+              const video = videoRef.current;
+              const videoW = video?.videoWidth || 640;
+              const videoH = video?.videoHeight || 480;
+              const containerW = video?.clientWidth || 640;
+              const containerH = video?.clientHeight || 480;
+
+              // Correct object-cover scaling: uniform scale with centering offset
+              const scale = Math.max(containerW / videoW, containerH / videoH);
+              const renderedW = videoW * scale;
+              const renderedH = videoH * scale;
+              const offsetX = (containerW - renderedW) / 2;
+              const offsetY = (containerH - renderedH) / 2;
+
+              left = `${offsetX + box.x * scale}px`;
+              top = `${offsetY + box.y * scale}px`;
+              width = `${box.width * scale}px`;
+              height = `${box.height * scale}px`;
+            }
 
             return (
               <div
                 key={idx}
-                className={`detection-box ${severityClass} absolute transition-all duration-300`}
+                className={`detection-box ${severityClass} absolute transition-all duration-150`}
                 style={{ left, top, width, height }}
               />
             );
@@ -309,11 +330,11 @@ export default function CameraRiskScreen({
               ))}
               {onLoadSampleVideo && (
                 <button
-                  onClick={onLoadSampleVideo}
+                  onClick={() => onLoadSampleVideo('/dense-crowd.webm')}
                   className="px-2.5 py-1 bg-guardian-cyan/20 text-guardian-cyan hover:bg-guardian-cyan/30 text-[11px] font-bold font-mono rounded transition-colors border border-guardian-cyan/40 flex items-center gap-1 whitespace-nowrap"
                   title="Switch to real crowd video detection"
                 >
-                  <Video size={12} /> REAL VIDEO
+                  <Video size={12} /> REAL VIDEO (30+)
                 </button>
               )}
             </div>
@@ -326,17 +347,43 @@ export default function CameraRiskScreen({
           </>
         ) : isActive ? (
           <>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono text-guardian-cyan font-bold flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-guardian-cyan animate-pulse" />
-                {videoMode === 'sample' ? 'REAL AI · SAMPLE FOOTAGE' : 'REAL AI · LIVE CAMERA'}
-              </span>
+            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
+              {videoMode === 'sample' ? (
+                <>
+                  <span className="text-[9px] font-mono text-guardian-cyan uppercase tracking-wider hidden sm:inline">VIDEO:</span>
+                  <button
+                    onClick={() => onLoadSampleVideo?.('/dense-crowd.webm')}
+                    className={`px-2 py-1 text-[11px] font-bold font-mono rounded transition-colors whitespace-nowrap flex items-center gap-1 ${
+                      currentSampleUrl === '/dense-crowd.webm'
+                        ? 'bg-guardian-amber text-black shadow-sm font-black'
+                        : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                    }`}
+                  >
+                    SURGE (30+)
+                  </button>
+                  <button
+                    onClick={() => onLoadSampleVideo?.('/sample-crowd.webm')}
+                    className={`px-2 py-1 text-[11px] font-bold font-mono rounded transition-colors whitespace-nowrap flex items-center gap-1 ${
+                      currentSampleUrl === '/sample-crowd.webm'
+                        ? 'bg-guardian-green text-black shadow-sm font-black'
+                        : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                    }`}
+                  >
+                    QUEUE (7)
+                  </button>
+                </>
+              ) : (
+                <span className="text-[10px] font-mono text-guardian-green font-bold flex items-center gap-1.5 whitespace-nowrap">
+                  <span className="w-1.5 h-1.5 rounded-full bg-guardian-green animate-pulse" />
+                  REAL AI · CAMERA
+                </span>
+              )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {videoMode === 'camera' && (
                 <button 
                   onClick={onToggleFacing}
-                  className="px-2.5 py-1.5 bg-guardian-surface hover:bg-guardian-border text-white text-xs font-bold rounded-lg transition-colors border border-white/10 flex items-center gap-1"
+                  className="px-2 py-1 bg-guardian-surface hover:bg-guardian-border text-white text-xs font-bold rounded-lg transition-colors border border-white/10 flex items-center gap-1"
                 >
                   <RotateCcw size={12} /> FLIP
                 </button>
@@ -344,14 +391,15 @@ export default function CameraRiskScreen({
               {videoMode === 'sample' && (
                 <button 
                   onClick={() => onSelectScenario('surge')}
-                  className="px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold rounded-lg transition-colors border border-white/10 flex items-center gap-1"
+                  className="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold rounded-lg transition-colors border border-white/10 flex items-center gap-1"
+                  title="Switch to synthetic presets"
                 >
                   <Sparkles size={12} /> PRESETS
                 </button>
               )}
               <button 
                 onClick={onStopCamera}
-                className="px-2.5 py-1.5 bg-guardian-red/20 hover:bg-guardian-red/40 text-guardian-red text-xs font-bold rounded-lg transition-colors border border-guardian-red/30 flex items-center gap-1"
+                className="px-2 py-1 bg-guardian-red/20 hover:bg-guardian-red/40 text-guardian-red text-xs font-bold rounded-lg transition-colors border border-guardian-red/30 flex items-center gap-1"
               >
                 <CameraOff size={12} /> STOP
               </button>
@@ -362,23 +410,24 @@ export default function CameraRiskScreen({
             <button 
               onClick={onStartCamera}
               disabled={isModelLoading}
-              className="flex-1 py-2 px-2 bg-guardian-accent hover:bg-[#ff8533] disabled:opacity-50 text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1"
+              className="flex-1 py-2 px-1.5 bg-guardian-accent hover:bg-[#ff8533] disabled:opacity-50 text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1"
             >
               <Camera size={13} /> LIVE CAMERA
             </button>
             {onLoadSampleVideo && (
               <button 
-                onClick={onLoadSampleVideo}
+                onClick={() => onLoadSampleVideo('/dense-crowd.webm')}
                 disabled={isModelLoading}
-                className="flex-1 py-2 px-2 bg-guardian-cyan hover:bg-[#38bdf8] disabled:opacity-50 text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1 shadow-sm shadow-cyan-500/20"
+                className="flex-1 py-2 px-1.5 bg-guardian-cyan hover:bg-[#38bdf8] disabled:opacity-50 text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1 shadow-sm shadow-cyan-500/20"
+                title="Run real AI vision on high-density festival crowd footage (30+ people)"
               >
-                <Video size={13} /> SAMPLE FOOTAGE
+                <Video size={13} /> DENSE SURGE (30+)
               </button>
             )}
             <button 
               onClick={() => onSelectScenario('surge')}
               disabled={isModelLoading}
-              className="flex-1 py-2 px-2 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-300 text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1"
+              className="flex-1 py-2 px-1.5 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-300 text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1"
             >
               <Sparkles size={13} /> PRESETS
             </button>

@@ -6,6 +6,7 @@ export function useCamera() {
   const streamRef = useRef<MediaStream | null>(null);
   const [isActive, setIsActive] = useState(false);
   const [videoMode, setVideoMode] = useState<'camera' | 'sample' | 'none'>('none');
+  const [currentSampleUrl, setCurrentSampleUrl] = useState<string>('/dense-crowd.webm');
   const [error, setError] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>(
     'environment'
@@ -48,7 +49,7 @@ export function useCamera() {
     }
   }, [facingMode]);
 
-  const loadSampleVideo = useCallback(async (videoUrl = '/sample-crowd.webm') => {
+  const loadSampleVideo = useCallback(async (videoUrl = '/dense-crowd.webm') => {
     try {
       setError(null);
       if (streamRef.current) {
@@ -64,6 +65,7 @@ export function useCamera() {
       }
       setIsActive(true);
       setVideoMode('sample');
+      setCurrentSampleUrl(videoUrl);
     } catch {
       setError('Could not play sample video. Please try again.');
       setIsActive(false);
@@ -105,6 +107,7 @@ export function useCamera() {
     videoRef,
     isActive,
     videoMode,
+    currentSampleUrl,
     error,
     facingMode,
     startCamera,

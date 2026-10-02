@@ -10,7 +10,7 @@ export async function loadDetector(): Promise<void> {
   isLoading = true;
   try {
     await import('@tensorflow/tfjs-backend-webgl');
-    model = await cocoSsd.load({ base: 'mobilenet_v2' });
+    model = await cocoSsd.load({ base: 'lite_mobilenet_v2' });
     console.log('[PersonDetector] Model loaded successfully');
   } catch (error) {
     console.error('[PersonDetector] Failed to load model:', error);
@@ -34,7 +34,7 @@ export async function detectPersons(
   const predictions = await model.detect(input);
 
   return predictions
-    .filter((p) => p.class === 'person' && p.score >= 0.4)
+    .filter((p) => p.class === 'person' && p.score >= 0.3)
     .map((p) => ({
       x: p.bbox[0],
       y: p.bbox[1],

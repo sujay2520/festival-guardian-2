@@ -15,7 +15,7 @@ export function pushFrameCount(count: number): void {
   }
 }
 
-export function computeRisk(frameAreaM2: number = 25): RiskData {
+export function computeRisk(frameAreaM2: number = 8): RiskData {
   if (countBuffer.length === 0) {
     return {
       score: 0,
