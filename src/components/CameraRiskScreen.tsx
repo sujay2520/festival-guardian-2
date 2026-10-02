@@ -272,12 +272,7 @@ export default function CameraRiskScreen({
             >
               <span className="text-[10px] font-mono tracking-wider text-guardian-cyan font-bold mr-2">VISION ENGINE</span>
               <div className="h-3 w-[1px] bg-white/20 mx-1" />
-              {isModelLoading ? (
-                <div className="flex items-center gap-1.5 text-guardian-muted">
-                  <Loader2 size={12} className="animate-spin" />
-                  <span className="text-[10px] font-mono">LOADING MODEL...</span>
-                </div>
-              ) : videoMode === 'sample' ? (
+              {videoMode === 'sample' ? (
                 <div className="flex items-center gap-1.5 text-guardian-cyan">
                   <div className="w-1.5 h-1.5 rounded-full bg-guardian-cyan animate-pulse" />
                   <span className="text-[10px] font-mono">REAL AI · FOOTAGE</span>
@@ -295,17 +290,20 @@ export default function CameraRiskScreen({
               ) : isModelReady ? (
                 <div className="flex items-center gap-1.5 text-guardian-green">
                   <div className="w-1.5 h-1.5 rounded-full bg-guardian-green animate-pulse" />
-                  <span className="text-[10px] font-mono">COCO-SSD READY</span>
+                  <span className="text-[10px] font-mono">AI READY</span>
                 </div>
               ) : (
-                <span className="text-[10px] font-mono text-guardian-muted">STANDBY</span>
+                <div className="flex items-center gap-1.5 text-guardian-cyan">
+                  <div className="w-1.5 h-1.5 rounded-full bg-guardian-cyan animate-pulse" />
+                  <span className="text-[10px] font-mono">ONLINE</span>
+                </div>
               )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Middle States: Loading, Error, Inactive */}
+      {/* Middle States: Error, Inactive */}
       <div className="absolute inset-0 z-15 flex items-center justify-center pointer-events-none">
         {cameraError ? (
           <div className="flex flex-col items-center justify-center bg-black/80 p-8 rounded-2xl border border-guardian-red/30 pointer-events-auto">
@@ -321,22 +319,15 @@ export default function CameraRiskScreen({
               </button>
             </div>
           </div>
-        ) : !showContent && !isModelLoading ? (
+        ) : !showContent ? (
           <div className="flex flex-col items-center justify-center pointer-events-auto">
             <div className="w-20 h-20 bg-guardian-surface rounded-full flex items-center justify-center border border-white/5 mb-6 text-guardian-muted">
               <Camera size={32} />
             </div>
             <h3 className="text-xl font-bold text-white mb-2 tracking-wide">Surveillance Offline</h3>
-            <p className="text-guardian-muted text-sm max-w-sm text-center">Start the camera feed or use the auto demo to begin analyzing crowd risks.</p>
+            <p className="text-guardian-muted text-sm max-w-sm text-center">Start the camera feed or choose sample event footage to analyze live crowd dynamics.</p>
           </div>
         ) : null}
-
-        {isModelLoading && (
-          <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center backdrop-blur-sm z-30 pointer-events-auto">
-            <Loader2 size={48} className="text-guardian-accent animate-spin mb-6" />
-            <p className="text-white font-mono tracking-widest text-sm animate-pulse">LOADING AI MODEL...</p>
-          </div>
-        )}
       </div>
 
       {/* Bottom Control Bar */}
@@ -367,9 +358,9 @@ export default function CameraRiskScreen({
                 <button
                   onClick={() => onLoadSampleVideo('/concert-crowd.webm')}
                   className="px-2.5 py-1 bg-guardian-cyan/20 text-guardian-cyan hover:bg-guardian-cyan/30 text-[11px] font-bold font-mono rounded transition-colors border border-guardian-cyan/40 flex items-center gap-1 whitespace-nowrap"
-                  title="Switch to real festival event video detection"
+                  title="Switch to real event video detection"
                 >
-                  <Video size={12} /> REAL FESTIVAL
+                  <Video size={12} /> EVENT
                 </button>
               )}
             </div>
@@ -385,7 +376,7 @@ export default function CameraRiskScreen({
             <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
               {videoMode === 'sample' ? (
                 <>
-                  <span className="text-[9px] font-mono text-guardian-cyan uppercase tracking-wider hidden sm:inline">VIDEO:</span>
+                  <span className="text-[9px] font-mono text-guardian-cyan uppercase tracking-wider hidden sm:inline">FOOTAGE:</span>
                   <button
                     onClick={() => onLoadSampleVideo?.('/concert-crowd.webm')}
                     className={`px-2 py-1 text-[11px] font-bold font-mono rounded transition-colors whitespace-nowrap flex items-center gap-1 ${
@@ -394,27 +385,27 @@ export default function CameraRiskScreen({
                         : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                     }`}
                   >
-                    FESTIVAL
+                    EVENT
                   </button>
                   <button
-                    onClick={() => onLoadSampleVideo?.('/dense-crowd.webm')}
+                    onClick={() => onLoadSampleVideo?.('/event-video-1.webm')}
                     className={`px-2 py-1 text-[11px] font-bold font-mono rounded transition-colors whitespace-nowrap flex items-center gap-1 ${
-                      currentSampleUrl === '/dense-crowd.webm'
-                        ? 'bg-guardian-amber text-black shadow-sm font-black'
+                      currentSampleUrl === '/event-video-1.webm'
+                        ? 'bg-guardian-cyan text-black shadow-sm font-black'
                         : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                     }`}
                   >
-                    SURGE (30+)
+                    VIDEO 1
                   </button>
                   <button
-                    onClick={() => onLoadSampleVideo?.('/sample-crowd.webm')}
+                    onClick={() => onLoadSampleVideo?.('/event-video-2.webm')}
                     className={`px-2 py-1 text-[11px] font-bold font-mono rounded transition-colors whitespace-nowrap flex items-center gap-1 ${
-                      currentSampleUrl === '/sample-crowd.webm'
-                        ? 'bg-guardian-green text-black shadow-sm font-black'
+                      currentSampleUrl === '/event-video-2.webm'
+                        ? 'bg-guardian-cyan text-black shadow-sm font-black'
                         : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                     }`}
                   >
-                    QUEUE (7)
+                    VIDEO 2
                   </button>
                 </>
               ) : (
@@ -451,38 +442,43 @@ export default function CameraRiskScreen({
             </div>
           </>
         ) : (
-          <div className="flex w-full items-center justify-between gap-1.5">
+          <div className="flex w-full items-center justify-between gap-1 overflow-x-auto py-0.5">
             <button 
               onClick={onStartCamera}
-              disabled={isModelLoading}
-              className="flex-1 py-2 px-1 bg-guardian-accent hover:bg-[#ff8533] disabled:opacity-50 text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1"
+              className="flex-1 py-2 px-1 bg-guardian-accent hover:bg-[#ff8533] text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1 whitespace-nowrap"
             >
               <Camera size={13} /> CAMERA
             </button>
             {onLoadSampleVideo && (
               <button 
                 onClick={() => onLoadSampleVideo('/concert-crowd.webm')}
-                disabled={isModelLoading}
-                className="flex-1 py-2 px-1 bg-guardian-cyan hover:bg-[#38bdf8] disabled:opacity-50 text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1 shadow-sm shadow-cyan-500/20"
+                className="flex-1 py-2 px-1 bg-guardian-cyan hover:bg-[#38bdf8] text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1 shadow-sm shadow-cyan-500/20 whitespace-nowrap"
                 title="Run real AI vision on festival concert crowd footage"
               >
-                <Video size={13} /> FESTIVAL
+                <Video size={13} /> EVENT
               </button>
             )}
             {onLoadSampleVideo && (
               <button 
-                onClick={() => onLoadSampleVideo('/dense-crowd.webm')}
-                disabled={isModelLoading}
-                className="flex-1 py-2 px-1 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-300 text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1"
-                title="Run real AI vision on surge crowd footage (30+ people)"
+                onClick={() => onLoadSampleVideo('/event-video-1.webm')}
+                className="flex-1 py-2 px-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1 whitespace-nowrap"
+                title="Run real AI vision on event footage 1"
               >
-                <Activity size={13} /> SURGE (30+)
+                <Video size={13} /> VIDEO 1
+              </button>
+            )}
+            {onLoadSampleVideo && (
+              <button 
+                onClick={() => onLoadSampleVideo('/event-video-2.webm')}
+                className="flex-1 py-2 px-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1 whitespace-nowrap"
+                title="Run real AI vision on event footage 2"
+              >
+                <Video size={13} /> VIDEO 2
               </button>
             )}
             <button 
               onClick={() => onSelectScenario('surge')}
-              disabled={isModelLoading}
-              className="py-2 px-1.5 bg-zinc-900 hover:bg-zinc-800 disabled:opacity-50 text-zinc-400 text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1 border border-white/5"
+              className="py-2 px-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1 border border-white/5 whitespace-nowrap"
             >
               <Sparkles size={13} /> PRESET
             </button>
