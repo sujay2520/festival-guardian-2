@@ -29,23 +29,13 @@ export default function HomePage() {
   const {
     videoRef,
     isActive: isCameraActive,
+    videoMode,
     error: cameraError,
     startCamera,
+    loadSampleVideo,
     stopCamera,
     toggleFacing,
   } = useCamera();
-
-  const handleStartCamera = useCallback(() => {
-    setDemoScenario('off');
-    startCamera();
-  }, [startCamera]);
-
-  const handleSelectScenario = useCallback((scenario: DemoScenario) => {
-    if (isCameraActive) {
-      stopCamera();
-    }
-    setDemoScenario(scenario);
-  }, [isCameraActive, stopCamera]);
 
   const {
     riskData,
@@ -54,6 +44,25 @@ export default function HomePage() {
     isLoading: isModelLoading,
     initModel,
   } = useRiskScore(videoRef, isCameraActive, demoScenario);
+
+  const handleStartCamera = useCallback(() => {
+    setDemoScenario('off');
+    initModel();
+    startCamera();
+  }, [startCamera, initModel]);
+
+  const handleLoadSampleVideo = useCallback(() => {
+    setDemoScenario('off');
+    initModel();
+    loadSampleVideo();
+  }, [loadSampleVideo, initModel]);
+
+  const handleSelectScenario = useCallback((scenario: DemoScenario) => {
+    if (isCameraActive) {
+      stopCamera();
+    }
+    setDemoScenario(scenario);
+  }, [isCameraActive, stopCamera]);
 
   const { getCurrentPosition } = useGeolocation();
   const { alerts, addAlert, clearAlerts, dismissAlert } = useAlerts();
@@ -110,6 +119,7 @@ export default function HomePage() {
             <CameraRiskScreen
               videoRef={videoRef}
               isActive={isCameraActive}
+              videoMode={videoMode}
               demoScenario={demoScenario}
               onSelectScenario={handleSelectScenario}
               riskData={riskData}
@@ -117,6 +127,7 @@ export default function HomePage() {
               isModelReady={isModelReady}
               isModelLoading={isModelLoading}
               onStartCamera={handleStartCamera}
+              onLoadSampleVideo={handleLoadSampleVideo}
               onStopCamera={stopCamera}
               onToggleFacing={toggleFacing}
               onInitModel={initModel}

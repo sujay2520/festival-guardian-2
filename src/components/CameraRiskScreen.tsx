@@ -2,13 +2,14 @@
 
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, CameraOff, RotateCcw, Loader2, Activity, Sparkles } from 'lucide-react';
+import { Camera, CameraOff, RotateCcw, Loader2, Activity, Sparkles, Video } from 'lucide-react';
 import type { BoundingBox, RiskData, DemoScenario } from '@/types';
 import RiskMeter from './RiskMeter';
 
 interface CameraRiskScreenProps {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   isActive: boolean;
+  videoMode?: 'camera' | 'sample' | 'none';
   demoScenario: DemoScenario;
   onSelectScenario: (scenario: DemoScenario) => void;
   riskData: RiskData;
@@ -16,6 +17,7 @@ interface CameraRiskScreenProps {
   isModelReady: boolean;
   isModelLoading: boolean;
   onStartCamera: () => void;
+  onLoadSampleVideo?: () => void;
   onStopCamera: () => void;
   onToggleFacing: () => void;
   onInitModel: () => void;
@@ -25,6 +27,7 @@ interface CameraRiskScreenProps {
 export default function CameraRiskScreen({
   videoRef,
   isActive,
+  videoMode = 'none',
   demoScenario,
   onSelectScenario,
   riskData,
@@ -32,6 +35,7 @@ export default function CameraRiskScreen({
   isModelReady,
   isModelLoading,
   onStartCamera,
+  onLoadSampleVideo,
   onStopCamera,
   onToggleFacing,
   onInitModel,
@@ -215,17 +219,27 @@ export default function CameraRiskScreen({
               {isModelLoading ? (
                 <div className="flex items-center gap-1.5 text-guardian-muted">
                   <Loader2 size={12} className="animate-spin" />
-                  <span className="text-[10px] font-mono">LOADING...</span>
+                  <span className="text-[10px] font-mono">LOADING MODEL...</span>
+                </div>
+              ) : videoMode === 'sample' ? (
+                <div className="flex items-center gap-1.5 text-guardian-cyan">
+                  <div className="w-1.5 h-1.5 rounded-full bg-guardian-cyan animate-pulse" />
+                  <span className="text-[10px] font-mono">REAL AI · FOOTAGE</span>
+                </div>
+              ) : videoMode === 'camera' ? (
+                <div className="flex items-center gap-1.5 text-guardian-green">
+                  <div className="w-1.5 h-1.5 rounded-full bg-guardian-green animate-pulse" />
+                  <span className="text-[10px] font-mono">REAL AI · LIVE CAMERA</span>
                 </div>
               ) : isSimulating ? (
                 <div className="flex items-center gap-1.5 text-guardian-amber">
                   <Sparkles size={12} />
-                  <span className="text-[10px] font-mono">SIM CROWD</span>
+                  <span className="text-[10px] font-mono">SYNTHETIC PRESET</span>
                 </div>
               ) : isModelReady ? (
                 <div className="flex items-center gap-1.5 text-guardian-green">
                   <div className="w-1.5 h-1.5 rounded-full bg-guardian-green animate-pulse" />
-                  <span className="text-[10px] font-mono">COCO-SSD</span>
+                  <span className="text-[10px] font-mono">COCO-SSD READY</span>
                 </div>
               ) : (
                 <span className="text-[10px] font-mono text-guardian-muted">STANDBY</span>
@@ -270,16 +284,16 @@ export default function CameraRiskScreen({
       </div>
 
       {/* Bottom Control Bar */}
-      <div className="relative z-20 bg-black/40 backdrop-blur-md border-t border-white/5 p-3 flex items-center justify-between pointer-events-auto">
+      <div className="relative z-20 bg-black/50 backdrop-blur-md border-t border-white/10 p-2.5 flex items-center justify-between pointer-events-auto gap-2">
         {isSimulating ? (
           <>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono text-guardian-muted uppercase tracking-widest mr-2">Scenario:</span>
+            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
+              <span className="text-[9px] font-mono text-guardian-muted uppercase tracking-wider mr-1 hidden sm:inline">PRESET:</span>
               {(['safe', 'surge', 'critical'] as const).map(sc => (
                 <button
                   key={sc}
                   onClick={() => onSelectScenario(sc)}
-                  className={`px-3 py-1.5 text-xs font-bold font-mono rounded transition-colors ${
+                  className={`px-2.5 py-1 text-[11px] font-bold font-mono rounded transition-colors whitespace-nowrap ${
                     demoScenario === sc 
                       ? sc === 'safe' ? 'bg-guardian-green text-black' 
                         : sc === 'surge' ? 'bg-guardian-amber text-black' 
@@ -293,48 +307,80 @@ export default function CameraRiskScreen({
                   {sc === 'critical' && ' (92)'}
                 </button>
               ))}
+              {onLoadSampleVideo && (
+                <button
+                  onClick={onLoadSampleVideo}
+                  className="px-2.5 py-1 bg-guardian-cyan/20 text-guardian-cyan hover:bg-guardian-cyan/30 text-[11px] font-bold font-mono rounded transition-colors border border-guardian-cyan/40 flex items-center gap-1 whitespace-nowrap"
+                  title="Switch to real crowd video detection"
+                >
+                  <Video size={12} /> REAL VIDEO
+                </button>
+              )}
             </div>
             <button 
               onClick={() => onSelectScenario('off')}
-              className="px-4 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold rounded transition-colors"
+              className="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-white text-[11px] font-bold rounded transition-colors whitespace-nowrap"
             >
-              EXIT DEMO
+              EXIT
             </button>
           </>
         ) : isActive ? (
           <>
-            <button 
-              onClick={onToggleFacing}
-              className="px-4 py-2 bg-guardian-surface hover:bg-guardian-border text-white text-xs font-bold rounded-lg transition-colors border border-white/10 flex items-center gap-2"
-            >
-              <RotateCcw size={14} />
-              SWITCH CAMERA
-            </button>
-            <button 
-              onClick={onStopCamera}
-              className="px-4 py-2 bg-guardian-red/20 hover:bg-guardian-red/40 text-guardian-red text-xs font-bold rounded-lg transition-colors border border-guardian-red/30 flex items-center gap-2"
-            >
-              <CameraOff size={14} />
-              STOP CAMERA
-            </button>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono text-guardian-cyan font-bold flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-guardian-cyan animate-pulse" />
+                {videoMode === 'sample' ? 'REAL AI · SAMPLE FOOTAGE' : 'REAL AI · LIVE CAMERA'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              {videoMode === 'camera' && (
+                <button 
+                  onClick={onToggleFacing}
+                  className="px-2.5 py-1.5 bg-guardian-surface hover:bg-guardian-border text-white text-xs font-bold rounded-lg transition-colors border border-white/10 flex items-center gap-1"
+                >
+                  <RotateCcw size={12} /> FLIP
+                </button>
+              )}
+              {videoMode === 'sample' && (
+                <button 
+                  onClick={() => onSelectScenario('surge')}
+                  className="px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold rounded-lg transition-colors border border-white/10 flex items-center gap-1"
+                >
+                  <Sparkles size={12} /> PRESETS
+                </button>
+              )}
+              <button 
+                onClick={onStopCamera}
+                className="px-2.5 py-1.5 bg-guardian-red/20 hover:bg-guardian-red/40 text-guardian-red text-xs font-bold rounded-lg transition-colors border border-guardian-red/30 flex items-center gap-1"
+              >
+                <CameraOff size={12} /> STOP
+              </button>
+            </div>
           </>
         ) : (
-          <div className="flex w-full items-center justify-center gap-4">
+          <div className="flex w-full items-center justify-between gap-1.5">
             <button 
               onClick={onStartCamera}
               disabled={isModelLoading}
-              className="px-6 py-2.5 bg-guardian-accent hover:bg-[#ff8533] disabled:opacity-50 text-black text-sm font-bold tracking-wide rounded-lg transition-colors flex items-center gap-2"
+              className="flex-1 py-2 px-2 bg-guardian-accent hover:bg-[#ff8533] disabled:opacity-50 text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1"
             >
-              <Camera size={16} />
-              START CAMERA
+              <Camera size={13} /> LIVE CAMERA
             </button>
+            {onLoadSampleVideo && (
+              <button 
+                onClick={onLoadSampleVideo}
+                disabled={isModelLoading}
+                className="flex-1 py-2 px-2 bg-guardian-cyan hover:bg-[#38bdf8] disabled:opacity-50 text-black text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1 shadow-sm shadow-cyan-500/20"
+              >
+                <Video size={13} /> SAMPLE FOOTAGE
+              </button>
+            )}
             <button 
-              onClick={() => onSelectScenario('safe')}
+              onClick={() => onSelectScenario('surge')}
               disabled={isModelLoading}
-              className="px-6 py-2.5 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-300 text-sm font-bold tracking-wide rounded-lg transition-colors flex items-center gap-2"
+              className="flex-1 py-2 px-2 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-300 text-[11px] font-bold font-mono tracking-wide rounded-lg transition-colors flex items-center justify-center gap-1"
             >
-              <Activity size={16} />
-              AUTO DEMO
+              <Sparkles size={13} /> PRESETS
             </button>
           </div>
         )}
