@@ -45,7 +45,7 @@ To maintain complete engineering honesty and transparency during hackathon evalu
 
 ## 🎮 Live Demo & Walkthrough
 
-Visit **[festival-guardian.vercel.app](https://festival-guardian.vercel.app)** on your smartphone or desktop:
+Visit **[festival-guardian-2.vercel.app](https://festival-guardian-2.vercel.app)** on your smartphone or desktop:
 
 1. **Camera Mode**: Tap **"Start Camera"** to analyze a live crowd feed directly on your device GPU.
 2. **Auto Demo Crowd**: Tap **"Auto Demo Crowd"** to toggle simulated telemetry across 3 real-world scenarios:
@@ -59,7 +59,7 @@ Visit **[festival-guardian.vercel.app](https://festival-guardian.vercel.app)** o
 ## 🛠️ Project Structure
 
 ```
-Festival Guardian/
+Festival Guardian 2/
 ├── src/
 │   ├── app/
 │   │   ├── page.tsx               # Primary dashboard orchestration
@@ -71,7 +71,8 @@ Festival Guardian/
 │   │   ├── SosButton.tsx          # Hold-to-activate emergency trigger
 │   │   ├── AlertPanel.tsx         # Multi-type active incident feed
 │   │   ├── VolunteerList.tsx      # Mesh peer discovery & presence status
-│   │   └── Header.tsx             # Branding, network state & peer counter
+│   │   ├── Header.tsx             # Branding, network state & peer counter
+│   │   └── OnboardingModal.tsx    # Guardian Node walkthrough & honest prototype guide
 │   ├── hooks/
 │   │   ├── useCamera.ts           # MediaDevices camera stream controller
 │   │   ├── useRiskScore.ts        # Detection loop & density calculation engine
@@ -80,7 +81,7 @@ Festival Guardian/
 │   │   └── useGeolocation.ts      # Browser GPS coordinate telemetry
 │   ├── lib/
 │   │   ├── person-detector.ts     # TensorFlow.js COCO-SSD inference wrapper
-│   │   ├── risk-scorer.ts         # NFPA-based density & flow rate algorithms
+│   │   ├── risk-scorer.ts         # NFPA 101 & Fruin LOS F density (>4 p/m²) algorithm
 │   │   ├── alert-factory.ts       # Standardized typed Alert builder
 │   │   ├── mesh-relay.ts          # Relay protocol, TTL hop decrement & cache
 │   │   └── delivery-bridge.ts     # Web Audio synth, haptics & notifications
@@ -97,8 +98,8 @@ Festival Guardian/
 
 ```bash
 # Clone the repository
-git clone https://github.com/sujay2520/festival-guardian.git
-cd festival-guardian
+git clone https://github.com/sujay2520/festival-guardian-2.git
+cd festival-guardian-2
 
 # Install dependencies
 npm install
