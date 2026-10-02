@@ -31,7 +31,7 @@ export default function Header({ isRelayActive, peerCount }: HeaderProps) {
           <div className="flex items-center gap-1.5 mt-0.5">
             <span className="w-1.5 h-1.5 rounded-full bg-guardian-green animate-pulse shadow-[0_0_5px_#22C55E]"></span>
             <span className="text-[10px] font-mono text-guardian-muted tracking-wide">
-              SNAPDRAGON NPU · 30 FPS
+              ON-DEVICE · WEBGL · 30 FPS
             </span>
           </div>
         </div>

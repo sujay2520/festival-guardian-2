@@ -9,6 +9,7 @@ import CameraRiskScreen from '@/components/CameraRiskScreen';
 import SosButton from '@/components/SosButton';
 import AlertPanel from '@/components/AlertPanel';
 import VolunteerList from '@/components/VolunteerList';
+import OnboardingModal from '@/components/OnboardingModal';
 
 import { useCamera } from '@/hooks/useCamera';
 import { useRiskScore } from '@/hooks/useRiskScore';
@@ -175,6 +176,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-guardian-bg text-slate-100 flex flex-col font-sans selection:bg-guardian-accent selection:text-black relative">
       <Header isRelayActive={isRelayActive} peerCount={peerCount} />
+      <OnboardingModal />
 
       <main className="flex-1 pt-16 pb-28 px-3 max-w-lg mx-auto w-full relative">
         <AnimatePresence mode="wait">
@@ -228,7 +230,7 @@ export default function HomePage() {
             }`}
           >
             <Radio className={`w-5 h-5 ${activeTab === 'mesh' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
-            <span className="text-[9px] font-mono font-bold tracking-widest uppercase">Mesh P2P</span>
+            <span className="text-[9px] font-mono font-bold tracking-widest uppercase">Relay</span>
           </button>
 
           {/* SOS Tab */}

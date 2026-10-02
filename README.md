@@ -1,8 +1,8 @@
-# 🛡️ Festival Guardian
+# 🛡️ Festival Guardian 2
 > **Predict. Respond. Relay.**  
-> *Point your phone at a crowd and get a live stampede-risk score. If the network jams, alerts hop phone-to-phone until they reach help.*
+> *Organizer-deployed Guardian Nodes stationed at gates & chokepoints to monitor crowd stampede risk in real-time. If networks jam, alerts hop node-to-node until reaching help.*
 
-[![Live Prototype](https://img.shields.io/badge/Live_Prototype-festival--guardian.vercel.app-6366f1?style=for-the-badge&logo=vercel)](https://festival-guardian.vercel.app)
+[![Live Prototype](https://img.shields.io/badge/Live_Prototype-festival--guardian--2.vercel.app-FF6600?style=for-the-badge&logo=vercel)](https://festival-guardian-2.vercel.app)
 [![Next.js](https://img.shields.io/badge/Framework-Next.js_14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TensorFlow.js](https://img.shields.io/badge/AI_Vision-TensorFlow.js_WebGL-orange?style=for-the-badge&logo=tensorflow)](https://www.tensorflow.org/js)
 [![Team](https://img.shields.io/badge/Team-Falling_Stars-amber?style=for-the-badge)](https://iqoo.reskilll.com/dashboard/iqoo-finale)
@@ -12,18 +12,20 @@
 ## 📌 Problem Statement
 Crowds at festivals, religious gatherings (temple queues), and transit hubs turn dangerous gradually — by the time visual panic sets in, exits are already bottlenecked. Worse, high crowd density congests local cellular towers, causing standard SOS calls and messaging apps to fail at the exact moment of crisis.
 
+Most consumer safety concepts assume every panicking attendee is holding a phone up. **Festival Guardian 2** is designed differently: it is an organizer-deployed network of fixed Guardian Nodes (carried by staff or mounted at gates/chokepoints) that continuously observes the crowd from dedicated vantage points.
+
 ---
 
 ## 💡 Solution Overview
-**Festival Guardian** addresses this with an offline-resilient, on-device crowd safety system:
+**Festival Guardian 2** delivers an offline-resilient, on-device crowd safety system:
 
-1. **On-Device Vision AI**: Analyzes live video to detect person counts, calculating crowd density ($\text{people}/\text{m}^2$) and movement flow rate into a responsive 0–100 stampede risk score.
+1. **Fixed-Node Vision AI**: Stationed at entrances/bottlenecks, running continuous inference on-device (TensorFlow.js, WebGL) to monitor density ($\text{people}/\text{m}^2$) and movement flow rate into a responsive 0–100 stampede risk score.
 2. **Unified Alert Engine**: A shared typed alert bus supporting 4 distinct triggers:
    * ⚠️ **Crowd Risk**: Automatically fired when density crosses critical safety thresholds ($>85$).
    * 🆘 **Emergency SOS**: Tactile 0.8s hold-to-send trigger preventing accidental pocket fires.
    * 🚨 **Theft Incident**: One-tap situational awareness reporting.
    * 🙋 **Volunteer Assistance**: Immediate dispatch for first-aid or crowd control.
-3. **Decentralized Relay**: When network bars drop to zero, alerts hop device-to-device with TTL deduplication until reaching a connected node with cellular signal or local emergency responders.
+3. **Decentralized Relay**: When network bars drop to zero, alerts hop node-to-node with TTL deduplication until reaching a connected node with cellular signal or local emergency responders.
 
 ---
 
