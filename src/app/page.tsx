@@ -113,6 +113,13 @@ export default function HomePage() {
     addAlert(alert);
   }, [getCurrentPosition, addAlert]);
 
+  const handleFirstAid = useCallback(() => {
+    const pos = getCurrentPosition();
+    const alert = AlertFactory.volunteerRequest(pos.lat, pos.lng);
+    alert.message = 'Medical First Aid requested urgently!';
+    addAlert(alert);
+  }, [getCurrentPosition, addAlert]);
+
   const handleBroadcastAdvisory = useCallback((msg: string) => {
     const pos = getCurrentPosition();
     const alert = AlertFactory.crowdRisk(60, pos.lat, pos.lng, 'Central-Dispatch');
@@ -229,6 +236,7 @@ export default function HomePage() {
               onSos={handleSos}
               onTheft={handleTheft}
               onVolunteerRequest={handleVolunteerRequest}
+              onFirstAid={handleFirstAid}
             />
           </motion.div>
         );
@@ -265,7 +273,7 @@ export default function HomePage() {
               }`}
             >
               <Shield size={12} />
-              <span>FIELD NODE</span>
+              <span>VOLUNTEER</span>
             </button>
             <button
               onClick={() => setUserRole('organizer')}
@@ -276,7 +284,7 @@ export default function HomePage() {
               }`}
             >
               <LayoutDashboard size={12} />
-              <span>CONTROL ROOM</span>
+              <span>ORGANIZER</span>
             </button>
           </div>
         </div>

@@ -55,10 +55,10 @@ export default function Header({
                   ? 'bg-[#FF6600] text-black font-bold shadow-[0_0_8px_rgba(255,102,0,0.4)]'
                   : 'text-guardian-muted hover:text-white'
               }`}
-              title="Field Guardian Node (Gate/Chokepoint Surveillance)"
+              title="Volunteer View (Gate & Crowd Monitoring)"
             >
               <Shield size={11} />
-              <span className="hidden xs:inline">NODE</span>
+              <span className="hidden xs:inline">VOLUNTEER</span>
             </button>
             <button
               onClick={() => onRoleChange('organizer')}
@@ -70,7 +70,7 @@ export default function Header({
               title="Organizer Control Room (Command Center & CCTV Feeds)"
             >
               <LayoutDashboard size={11} />
-              <span className="hidden xs:inline">HUB</span>
+              <span className="hidden xs:inline">ORGANIZER</span>
             </button>
           </div>
         )}
