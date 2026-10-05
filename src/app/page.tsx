@@ -22,12 +22,13 @@ import { requestNotificationPermission } from '@/lib/delivery-bridge';
 import { DemoScenario } from '@/types';
 
 type TabId = 'scanner' | 'alerts' | 'mesh' | 'sos';
-type UserRole = 'volunteer' | 'organizer';
+type UserRole = 'people' | 'organizer';
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<TabId>('scanner');
-  const [userRole, setUserRole] = useState<UserRole>('volunteer');
+  const [userRole, setUserRole] = useState<UserRole>('people');
   const [demoScenario, setDemoScenario] = useState<DemoScenario>('surge');
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   const {
     videoRef,
@@ -144,7 +145,7 @@ export default function HomePage() {
             onDismissAlert={dismissAlert}
             onClearAlerts={clearAlerts}
             onBroadcastAdvisory={handleBroadcastAdvisory}
-            onSwitchToFieldNode={() => setUserRole('volunteer')}
+            onSwitchToFieldNode={() => setUserRole('people')}
           />
         </motion.div>
       );
@@ -252,28 +253,29 @@ export default function HomePage() {
         peerCount={peerCount}
         currentRole={userRole}
         onRoleChange={setUserRole}
+        onOpenInfo={() => setIsInfoOpen(true)}
       />
-      <OnboardingModal />
+      <OnboardingModal isOpen={isInfoOpen} onClose={() => setIsInfoOpen(false)} />
 
       <main className="flex-1 pt-16 pb-28 px-3 max-w-lg mx-auto w-full relative">
         {/* Tactical Operational Role Switcher Banner */}
         <div className="w-full flex items-center justify-between mb-3 bg-black/50 border border-white/10 rounded-xl p-1.5 font-mono text-[11px] shadow-md">
           <div className="flex items-center gap-1.5 pl-1.5 text-guardian-muted">
-            <span className={`w-2 h-2 rounded-full ${userRole === 'volunteer' ? 'bg-[#FF6600]' : 'bg-guardian-cyan'} animate-pulse`} />
+            <span className={`w-2 h-2 rounded-full ${userRole === 'people' ? 'bg-[#FF6600]' : 'bg-guardian-cyan'} animate-pulse`} />
             <span className="text-[10px] tracking-wider uppercase hidden xs:inline">ROLE:</span>
           </div>
 
           <div className="flex items-center gap-1 bg-black/60 p-0.5 rounded-lg border border-white/5">
             <button
-              onClick={() => setUserRole('volunteer')}
+              onClick={() => setUserRole('people')}
               className={`px-2.5 py-1 rounded-md font-bold transition-all flex items-center gap-1.5 ${
-                userRole === 'volunteer'
+                userRole === 'people'
                   ? 'bg-[#FF6600] text-black shadow-[0_0_8px_rgba(255,102,0,0.3)]'
                   : 'text-guardian-muted hover:text-white'
               }`}
             >
               <Shield size={12} />
-              <span>VOLUNTEER</span>
+              <span>PEOPLE</span>
             </button>
             <button
               onClick={() => setUserRole('organizer')}
@@ -300,16 +302,16 @@ export default function HomePage() {
           {/* Scanner Tab */}
           <button
             onClick={() => {
-              setUserRole('volunteer');
+              setUserRole('people');
               setActiveTab('scanner');
             }}
             className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all ${
-              userRole === 'volunteer' && activeTab === 'scanner'
+              userRole === 'people' && activeTab === 'scanner'
                 ? 'bg-gradient-to-b from-[#FF6600]/20 to-red-600/20 border border-[#FF6600]/60 shadow-[0_0_15px_rgba(255,102,0,0.3)]'
                 : 'border border-transparent text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <Camera className={`w-5 h-5 ${userRole === 'volunteer' && activeTab === 'scanner' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
+            <Camera className={`w-5 h-5 ${userRole === 'people' && activeTab === 'scanner' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
             <span className="text-[9px] font-mono font-bold tracking-widest uppercase">Scanner</span>
           </button>
 
@@ -319,13 +321,13 @@ export default function HomePage() {
               setActiveTab('alerts');
             }}
             className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all ${
-              activeTab === 'alerts' && userRole === 'volunteer'
+              activeTab === 'alerts' && userRole === 'people'
                 ? 'bg-gradient-to-b from-[#FF6600]/20 to-red-600/20 border border-[#FF6600]/60 shadow-[0_0_15px_rgba(255,102,0,0.3)]'
                 : 'border border-transparent text-zinc-500 hover:text-zinc-300'
             }`}
           >
             <div className="relative">
-              <ShieldAlert className={`w-5 h-5 ${activeTab === 'alerts' && userRole === 'volunteer' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
+              <ShieldAlert className={`w-5 h-5 ${activeTab === 'alerts' && userRole === 'people' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
               {alerts.length > 0 && (
                 <span className="absolute -top-1.5 -right-2 bg-guardian-red text-white text-[10px] font-bold px-1.5 rounded-full border border-black min-w-[18px] text-center">
                   {alerts.length}
@@ -338,32 +340,32 @@ export default function HomePage() {
           {/* Mesh P2P Tab */}
           <button
             onClick={() => {
-              setUserRole('volunteer');
+              setUserRole('people');
               setActiveTab('mesh');
             }}
             className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all ${
-              userRole === 'volunteer' && activeTab === 'mesh'
+              userRole === 'people' && activeTab === 'mesh'
                 ? 'bg-gradient-to-b from-[#FF6600]/20 to-red-600/20 border border-[#FF6600]/60 shadow-[0_0_15px_rgba(255,102,0,0.3)]'
                 : 'border border-transparent text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <Radio className={`w-5 h-5 ${userRole === 'volunteer' && activeTab === 'mesh' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
+            <Radio className={`w-5 h-5 ${userRole === 'people' && activeTab === 'mesh' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
             <span className="text-[9px] font-mono font-bold tracking-widest uppercase">Relay</span>
           </button>
 
           {/* SOS Tab */}
           <button
             onClick={() => {
-              setUserRole('volunteer');
+              setUserRole('people');
               setActiveTab('sos');
             }}
             className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all ${
-              userRole === 'volunteer' && activeTab === 'sos'
+              userRole === 'people' && activeTab === 'sos'
                 ? 'bg-gradient-to-b from-[#FF6600]/20 to-red-600/20 border border-[#FF6600]/60 shadow-[0_0_15px_rgba(255,102,0,0.3)]'
                 : 'border border-transparent text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <AlertTriangle className={`w-5 h-5 ${userRole === 'volunteer' && activeTab === 'sos' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
+            <AlertTriangle className={`w-5 h-5 ${userRole === 'people' && activeTab === 'sos' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
             <span className="text-[9px] font-mono font-bold tracking-widest uppercase">SOS</span>
           </button>
         </div>

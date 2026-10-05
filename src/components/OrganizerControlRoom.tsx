@@ -239,13 +239,13 @@ export default function OrganizerControlRoom({
             </div>
           </div>
 
-          {/* Prominent Switch to Volunteer View Button */}
+          {/* Prominent Switch to People View Button */}
           <button
             onClick={onSwitchToFieldNode}
             className="px-3.5 py-2 rounded-xl bg-[#FF6600]/20 hover:bg-[#FF6600]/30 border border-[#FF6600]/50 text-[#FF6600] text-xs font-mono font-bold transition-all flex items-center justify-center gap-2 shadow-sm self-start sm:self-auto"
           >
             <Shield size={14} />
-            <span>SWITCH TO VOLUNTEER VIEW</span>
+            <span>SWITCH TO PEOPLE VIEW</span>
             <ArrowRight size={14} />
           </button>
         </div>

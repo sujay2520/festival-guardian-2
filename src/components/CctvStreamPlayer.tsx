@@ -183,10 +183,11 @@ export default function CctvStreamPlayer({
     return () => clearInterval(interval);
   }, []);
 
-  // Initialize and run the real AI person detection loop on the CCTV feed
+  // Initialize and run the real AI person detection loop on the CCTV feed with sequential mobile optimization
   useEffect(() => {
     let isCancelled = false;
-    let detectionInterval: NodeJS.Timeout | null = null;
+    let isProcessing = false;
+    let timeoutId: NodeJS.Timeout | null = null;
 
     const startDetection = async () => {
       try {
@@ -195,20 +196,36 @@ export default function CctvStreamPlayer({
         }
         if (isCancelled) return;
 
-        detectionInterval = setInterval(async () => {
-          if (!videoRef.current || videoRef.current.paused || videoRef.current.ended) return;
-          if (videoRef.current.readyState < 2) return;
+        const runCycle = async () => {
+          if (isCancelled) return;
 
-          try {
-            const boxes = await detectPersons(videoRef.current);
-            if (!isCancelled && boxes && boxes.length > 0) {
-              setDetectedBoxes(boxes);
-              setPersonCount(boxes.length);
+          if (
+            !isProcessing &&
+            videoRef.current &&
+            !videoRef.current.paused &&
+            !videoRef.current.ended &&
+            videoRef.current.readyState >= 2
+          ) {
+            isProcessing = true;
+            try {
+              const boxes = await detectPersons(videoRef.current);
+              if (!isCancelled && boxes && boxes.length > 0) {
+                setDetectedBoxes(boxes);
+                setPersonCount(boxes.length);
+              }
+            } catch {
+              // Ignore temporary frame capture errors while seeking
+            } finally {
+              isProcessing = false;
             }
-          } catch {
-            // Ignore temporary frame capture errors while seeking
           }
-        }, 320);
+
+          if (!isCancelled) {
+            timeoutId = setTimeout(runCycle, 450);
+          }
+        };
+
+        runCycle();
       } catch (err) {
         console.warn('AI Detector warmup in CCTV player:', err);
       }
@@ -218,7 +235,7 @@ export default function CctvStreamPlayer({
 
     return () => {
       isCancelled = true;
-      if (detectionInterval) clearInterval(detectionInterval);
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [selectedCam.src]);
 

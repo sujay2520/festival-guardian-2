@@ -1,164 +1,142 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Camera, Radio, AlertTriangle, Info, X } from 'lucide-react';
+import { Shield, Camera, Radio, AlertTriangle, Users, LayoutDashboard, HeartPulse, X } from 'lucide-react';
 
-export default function OnboardingModal() {
-  const [isOpen, setIsOpen] = useState(false);
+export interface OnboardingModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-  const handleDismiss = () => {
-    setIsOpen(false);
-  };
-
+export default function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   return (
-    <>
-      {/* Re-trigger button placed cleanly in header area */}
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="fixed top-3.5 right-32 z-50 h-7 px-2 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 flex items-center gap-1 text-guardian-muted hover:text-white transition-colors"
-          title="Guardian Node Info & Tutorial"
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
         >
-          <Info className="w-3.5 h-3.5 text-[#FF6600]" />
-          <span className="text-[10px] font-mono tracking-wider font-bold text-slate-300">INFO</span>
-        </button>
-      )}
-
-      <AnimatePresence>
-        {isOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+            initial={{ opacity: 0, scale: 0.94, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 15 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="bg-guardian-card border border-guardian-border rounded-2xl max-w-md w-full overflow-hidden shadow-2xl my-auto"
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="bg-guardian-card border border-guardian-border rounded-2xl max-w-sm w-full overflow-hidden shadow-2xl"
-            >
-              {/* Header */}
-              <div className="bg-gradient-to-r from-[#FF6600]/20 to-red-600/10 border-b border-guardian-border p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF6600] to-red-600 flex items-center justify-center">
-                      <Shield className="w-6 h-6 text-black fill-black" />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-bold text-white font-mono tracking-wide">
-                        GUARDIAN NODE
-                      </h2>
-                      <p className="text-[11px] text-guardian-muted">
-                        Crowd Safety Monitoring System
-                      </p>
-                    </div>
+            {/* Header */}
+            <div className="bg-gradient-to-r from-[#FF6600]/25 via-red-600/15 to-transparent border-b border-guardian-border p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF6600] to-red-600 flex items-center justify-center shadow-md">
+                    <Shield className="w-6 h-6 text-black fill-black" />
                   </div>
-                  <button
-                    onClick={handleDismiss}
-                    className="text-guardian-muted hover:text-white transition-colors p-1"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+                  <div>
+                    <h2 className="text-base sm:text-lg font-bold text-white font-mono tracking-wide">
+                      HOW TO USE THE APP
+                    </h2>
+                    <p className="text-[11px] text-guardian-muted">
+                      Festival Guardian · Crowd Safety & Mesh Emergency
+                    </p>
+                  </div>
                 </div>
+                <button
+                  onClick={onClose}
+                  className="text-guardian-muted hover:text-white transition-colors p-1.5 rounded-lg bg-black/40 border border-white/5"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
+            </div>
 
-              {/* Content */}
-              <div className="p-4 space-y-4">
-                {/* Who holds this phone */}
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#FF6600]/15 flex-shrink-0 flex items-center justify-center mt-0.5">
-                    <Shield className="w-4 h-4 text-[#FF6600]" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">
-                      This is a Guardian Node
-                    </p>
-                    <p className="text-xs text-guardian-muted mt-0.5 leading-relaxed">
-                      Carried by event staff or volunteers stationed at gates and
-                      chokepoints — not a general attendee app. Nodes are placed
-                      deliberately, at elevated or fixed positions.
-                    </p>
-                  </div>
+            {/* Simple Step-by-Step Instructions */}
+            <div className="p-4 space-y-3.5 max-h-[70vh] overflow-y-auto text-slate-200">
+              {/* Step 1: Scanner */}
+              <div className="flex gap-3 bg-black/40 p-3 rounded-xl border border-white/5">
+                <div className="w-8 h-8 rounded-lg bg-guardian-green/20 border border-guardian-green/30 flex-shrink-0 flex items-center justify-center text-guardian-green mt-0.5">
+                  <Camera className="w-4 h-4" />
                 </div>
-
-                {/* What Vision Engine does */}
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-guardian-green/15 flex-shrink-0 flex items-center justify-center mt-0.5">
-                    <Camera className="w-4 h-4 text-guardian-green" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">
-                      Vision Engine
-                    </p>
-                    <p className="text-xs text-guardian-muted mt-0.5 leading-relaxed">
-                      Continuously analyzes crowd density at this station using
-                      on-device inference (TensorFlow.js, WebGL). Tap{' '}
-                      <span className="text-guardian-amber font-medium">Auto Demo</span>{' '}
-                      to preview Safe → Surge → Critical without a live camera.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Relay */}
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-guardian-cyan/15 flex-shrink-0 flex items-center justify-center mt-0.5">
-                    <Radio className="w-4 h-4 text-guardian-cyan" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">
-                      Relay Network
-                    </p>
-                    <p className="text-xs text-guardian-muted mt-0.5 leading-relaxed">
-                      Alerts hop between Guardian nodes even without cellular signal.
-                      Current prototype uses BroadcastChannel (same-device demo);
-                      production target is Android Nearby Connections API for
-                      true cross-device relay.
-                    </p>
-                  </div>
-                </div>
-
-                {/* SOS & Actions */}
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-guardian-red/15 flex-shrink-0 flex items-center justify-center mt-0.5">
-                    <AlertTriangle className="w-4 h-4 text-guardian-red" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">
-                      SOS · Theft · Need Help
-                    </p>
-                    <p className="text-xs text-guardian-muted mt-0.5 leading-relaxed">
-                      One-tap manual triggers ride the same relay bus. SOS requires
-                      a 0.8s hold to prevent accidental fires.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Disclaimer */}
-                <div className="bg-guardian-bg/80 rounded-lg p-3 border border-guardian-border/60">
-                  <p className="text-[10px] text-guardian-muted/70 leading-relaxed">
-                    ⚠️ Counts, peer names, and locations shown are demo data for this
-                    walkthrough. This is a working prototype — not a deployed safety
-                    system.
+                <div className="text-xs">
+                  <p className="font-bold text-white font-mono uppercase tracking-wide">
+                    1. AI Crowd Scanner
+                  </p>
+                  <p className="text-guardian-muted mt-1 leading-relaxed">
+                    Tap <span className="text-guardian-green font-semibold">CAMERA</span> to monitor a real gate, or tap <span className="text-guardian-cyan font-semibold">EVENT</span> / <span className="text-guardian-cyan font-semibold">VIDEO 1</span> / <span className="text-guardian-cyan font-semibold">VIDEO 2</span> to test actual concert footage. The on-device AI tracks people and warns when density exceeds safety limits.
                   </p>
                 </div>
               </div>
 
-              {/* Footer */}
-              <div className="p-4 pt-0">
-                <button
-                  onClick={handleDismiss}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-[#FF6600] to-red-600 text-white font-bold font-mono tracking-widest text-sm hover:opacity-90 transition-opacity shadow-lg shadow-[#FF6600]/20"
-                >
-                  GOT IT — START MONITORING
-                </button>
+              {/* Step 2: Emergency SOS */}
+              <div className="flex gap-3 bg-black/40 p-3 rounded-xl border border-white/5">
+                <div className="w-8 h-8 rounded-lg bg-red-500/20 border border-red-500/30 flex-shrink-0 flex items-center justify-center text-red-400 mt-0.5">
+                  <HeartPulse className="w-4 h-4" />
+                </div>
+                <div className="text-xs">
+                  <p className="font-bold text-white font-mono uppercase tracking-wide">
+                    2. Emergency SOS & 1-Tap Help
+                  </p>
+                  <p className="text-guardian-muted mt-1 leading-relaxed">
+                    Under the <span className="text-red-400 font-semibold">SOS</span> tab, hold the big red button for 0.8s for critical danger. Use 1-tap buttons for <span className="text-amber-400 font-semibold">Theft</span>, <span className="text-red-400 font-semibold">Medical</span>, or <span className="text-cyan-400 font-semibold">Need Help</span>.
+                  </p>
+                </div>
               </div>
-            </motion.div>
+
+              {/* Step 3: Zero-Internet Mesh */}
+              <div className="flex gap-3 bg-black/40 p-3 rounded-xl border border-white/5">
+                <div className="w-8 h-8 rounded-lg bg-guardian-cyan/20 border border-guardian-cyan/30 flex-shrink-0 flex items-center justify-center text-guardian-cyan mt-0.5">
+                  <Radio className="w-4 h-4" />
+                </div>
+                <div className="text-xs">
+                  <p className="font-bold text-white font-mono uppercase tracking-wide">
+                    3. Works Without Internet / SIM
+                  </p>
+                  <p className="text-guardian-muted mt-1 leading-relaxed">
+                    When festival cellular towers get jammed, alerts hop phone-to-phone across the local mesh network with zero Wi-Fi or cellular needed.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 4: Two Roles (People vs Organizer) */}
+              <div className="flex gap-3 bg-black/40 p-3 rounded-xl border border-white/5">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex-shrink-0 flex items-center justify-center text-amber-400 mt-0.5">
+                  <Users className="w-4 h-4" />
+                </div>
+                <div className="text-xs">
+                  <p className="font-bold text-white font-mono uppercase tracking-wide">
+                    4. People vs Organizer View
+                  </p>
+                  <p className="text-guardian-muted mt-1 leading-relaxed">
+                    Use the role toggle in the header or top bar:
+                  </p>
+                  <ul className="mt-1.5 space-y-1 text-slate-300">
+                    <li className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#FF6600]" />
+                      <strong className="text-white">PEOPLE:</strong> Scanner, local alerts, and SOS.
+                    </li>
+                    <li className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-guardian-cyan" />
+                      <strong className="text-white">ORGANIZER:</strong> Multi-zone heatmaps, CCTV security streams, and dispatch.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 pt-1 bg-black/20 border-t border-white/5">
+              <button
+                onClick={onClose}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#FF6600] to-red-600 text-white font-bold font-mono tracking-wider text-xs hover:opacity-90 transition-opacity shadow-lg shadow-[#FF6600]/20"
+              >
+                GOT IT · START USING THE APP
+              </button>
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

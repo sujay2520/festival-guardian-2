@@ -130,36 +130,38 @@ export default function SosButton({
         </motion.button>
       </div>
 
-      <p className="text-xs text-[#7D8590] mb-5 font-mono">Hold 0.8s to broadcast emergency</p>
+      <p className="text-[10px] sm:text-xs text-guardian-cyan mb-6 font-mono tracking-wider uppercase text-center font-semibold">
+        HOLD 0.8S FOR ZERO-INTERNET MESH BROADCAST
+      </p>
 
-      {/* Primary Emergency Secondary Actions */}
-      <div className="w-full space-y-2">
-        {/* Need First Aid - Primary Medical Emergency Button */}
+      {/* 3 Tactical Emergency Cards Row matching screenshot */}
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-3 w-full">
+        {/* Theft */}
         <button
-          onClick={handleFirstAid}
-          className="w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-950/40 via-emerald-900/30 to-emerald-950/40 border border-emerald-500/40 hover:border-emerald-400 text-emerald-400 font-bold font-mono text-xs tracking-wider transition-all shadow-md active:scale-98"
+          onClick={handleTheft}
+          className="flex flex-col items-center justify-center py-3.5 px-2 rounded-2xl bg-amber-500/10 border border-amber-500/30 hover:border-amber-400 text-amber-400 font-mono transition-all active:scale-95 shadow-md hover:bg-amber-500/15 group"
         >
-          <HeartPulse className="w-5 h-5 text-emerald-400 animate-pulse" />
-          <span>NEED FIRST AID / MEDICAL</span>
+          <PackageX className="w-5 h-5 mb-1.5 text-amber-400 group-hover:scale-110 transition-transform" />
+          <span className="text-xs font-semibold tracking-wide">Theft</span>
         </button>
 
-        {/* Secondary Row: Theft & Volunteer Help */}
-        <div className="flex gap-2 w-full">
-          <button
-            onClick={handleTheft}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#F59E0B]/15 border border-[#F59E0B]/30 hover:border-amber-400 text-amber-400 font-medium font-mono text-xs transition-colors active:scale-98"
-          >
-            <PackageX className="w-4 h-4" />
-            <span>Theft</span>
-          </button>
-          <button
-            onClick={handleHelp}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#22D3EE]/15 border border-[#22D3EE]/30 hover:border-cyan-400 text-cyan-400 font-medium font-mono text-xs transition-colors active:scale-98"
-          >
-            <AlertTriangle className="w-4 h-4" />
-            <span>Need Help</span>
-          </button>
-        </div>
+        {/* Medical */}
+        <button
+          onClick={handleFirstAid}
+          className="flex flex-col items-center justify-center py-3.5 px-2 rounded-2xl bg-red-500/10 border border-red-500/30 hover:border-red-400 text-red-400 font-mono transition-all active:scale-95 shadow-md hover:bg-red-500/15 group"
+        >
+          <HeartPulse className="w-5 h-5 mb-1.5 text-red-400 group-hover:scale-110 transition-transform" />
+          <span className="text-xs font-semibold tracking-wide">Medical</span>
+        </button>
+
+        {/* Need Help */}
+        <button
+          onClick={handleHelp}
+          className="flex flex-col items-center justify-center py-3.5 px-2 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 hover:border-cyan-400 text-cyan-400 font-mono transition-all active:scale-95 shadow-md hover:bg-cyan-500/15 group"
+        >
+          <AlertTriangle className="w-5 h-5 mb-1.5 text-cyan-400 group-hover:scale-110 transition-transform" />
+          <span className="text-xs font-semibold tracking-wide whitespace-nowrap">Need Help</span>
+        </button>
       </div>
 
       {/* Toast Notification */}

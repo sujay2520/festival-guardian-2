@@ -122,8 +122,8 @@ export async function detectPersons(
     }
   }
 
-  // PASS 2: Center/corridor tile crop for small/distant people in crowds
-  if (isVideo && origW >= 480) {
+  // PASS 2: Center/corridor tile crop for small/distant people in crowds (only if crowd presence is detected)
+  if (isVideo && origW >= 480 && detectedBoxes.length >= 2) {
     if (!cropCanvas) {
       cropCanvas = document.createElement('canvas');
       cropCtx = cropCanvas.getContext('2d', { willReadFrequently: true });

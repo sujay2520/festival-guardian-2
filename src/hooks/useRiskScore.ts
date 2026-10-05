@@ -165,8 +165,8 @@ export function useRiskScore(
       }
 
       if (!isCancelled) {
-        // 250ms cooldown AFTER frame finishes: prevents tensor queuing and mobile GPU throttling
-        timeoutId = setTimeout(runInferenceCycle, 250);
+        // 420ms cooldown AFTER frame finishes: prevents tensor queuing and mobile GPU thermal throttling
+        timeoutId = setTimeout(runInferenceCycle, 420);
       }
     };
 
