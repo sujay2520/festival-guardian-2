@@ -1,10 +1,22 @@
-# 🛡️ Festival Guardian 2
+# 🚧 [ARCHIVED] Festival Guardian 2
+
+> [!WARNING]
+> **This repository is archived and no longer maintained.**  
+> All development, features (including the Dual-Persona architecture, CCTV ingestion pipeline, Grok-inspired UI, tactile audio, and Grand Finale pitch decks) have been consolidated into the official production repository:
+> 👉 **[https://github.com/sujay2520/festival-guardian](https://github.com/sujay2520/festival-guardian)**  
+> 
+> **Official Live Production Application:**  
+> 🌐 **[https://festival-guardian.vercel.app](https://festival-guardian.vercel.app)**  
+> *(The legacy URL festival-guardian-2.vercel.app is discarded/deprecated).*
+
+---
+
+# 🛡️ Festival Guardian 2 (Legacy Dev Branch)
 > **Predict. Respond. Relay.**  
 > *An organizer-deployed edge intelligence and decentralized mesh network for crowd stampede prevention, incident dispatch, and offline safety telemetry.*
 
-[![Live Prototype](https://img.shields.io/badge/Live_Prototype-festival--guardian--2.vercel.app-FF6600?style=for-the-badge&logo=vercel)](https://festival-guardian-2.vercel.app)
-[![Next.js](https://img.shields.io/badge/Framework-Next.js_14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![TensorFlow.js](https://img.shields.io/badge/AI_Vision-TensorFlow.js_WebGL-orange?style=for-the-badge&logo=tensorflow)](https://www.tensorflow.org/js)
+[![Live Prototype](https://img.shields.io/badge/Production_App-festival--guardian.vercel.app-FF6600?style=for-the-badge&logo=vercel)](https://festival-guardian.vercel.app)
+[![Main Repo](https://img.shields.io/badge/Main_Repository-sujay2520%2Ffestival--guardian-cyan?style=for-the-badge&logo=github)](https://github.com/sujay2520/festival-guardian)
 [![Team](https://img.shields.io/badge/Team-Falling_Stars-amber?style=for-the-badge)](https://iqoo.reskilll.com/dashboard/iqoo-finale)
 
 ---
