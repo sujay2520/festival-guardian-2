@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, ShieldAlert, Radio, AlertTriangle } from 'lucide-react';
+import { Camera, ShieldAlert, Radio, AlertTriangle, Shield, LayoutDashboard, Video } from 'lucide-react';
 
 import Header from '@/components/Header';
 import CameraRiskScreen from '@/components/CameraRiskScreen';
@@ -10,6 +10,7 @@ import SosButton from '@/components/SosButton';
 import AlertPanel from '@/components/AlertPanel';
 import VolunteerList from '@/components/VolunteerList';
 import OnboardingModal from '@/components/OnboardingModal';
+import OrganizerControlRoom from '@/components/OrganizerControlRoom';
 
 import { useCamera } from '@/hooks/useCamera';
 import { useRiskScore } from '@/hooks/useRiskScore';
@@ -21,9 +22,11 @@ import { requestNotificationPermission } from '@/lib/delivery-bridge';
 import { DemoScenario } from '@/types';
 
 type TabId = 'scanner' | 'alerts' | 'mesh' | 'sos';
+type UserRole = 'volunteer' | 'organizer';
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState<TabId>('scanner');
+  const [userRole, setUserRole] = useState<UserRole>('volunteer');
   const [demoScenario, setDemoScenario] = useState<DemoScenario>('surge');
 
   const {
@@ -110,7 +113,37 @@ export default function HomePage() {
     addAlert(alert);
   }, [getCurrentPosition, addAlert]);
 
+  const handleBroadcastAdvisory = useCallback((msg: string) => {
+    const pos = getCurrentPosition();
+    const alert = AlertFactory.crowdRisk(60, pos.lat, pos.lng, 'Central-Dispatch');
+    alert.message = msg;
+    addAlert(alert);
+  }, [getCurrentPosition, addAlert]);
+
   const renderTabContent = () => {
+    // If Organizer role is active, show the master Organizer Command Center
+    if (userRole === 'organizer') {
+      return (
+        <motion.div
+          key="organizer-control-room"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="w-full"
+        >
+          <OrganizerControlRoom
+            alerts={alerts}
+            peers={peers}
+            onDismissAlert={dismissAlert}
+            onClearAlerts={clearAlerts}
+            onBroadcastAdvisory={handleBroadcastAdvisory}
+            onSwitchToFieldNode={() => setUserRole('volunteer')}
+          />
+        </motion.div>
+      );
+    }
+
+    // Otherwise, show Field Volunteer Node tabs
     switch (activeTab) {
       case 'scanner':
         return (
@@ -148,8 +181,22 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="w-full"
+            className="w-full space-y-3"
           >
+            {/* Quick Banner Linking to Organizer Control Room */}
+            <div className="bg-gradient-to-r from-guardian-cyan/15 to-blue-600/10 border border-guardian-cyan/30 rounded-2xl p-3 flex items-center justify-between gap-2 text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <LayoutDashboard size={15} className="text-guardian-cyan shrink-0" />
+                <span className="text-zinc-200">Looking for multi-zone venue map & CCTV streams?</span>
+              </div>
+              <button
+                onClick={() => setUserRole('organizer')}
+                className="px-2.5 py-1 rounded-lg bg-guardian-cyan text-black font-bold whitespace-nowrap hover:bg-[#38bdf8] transition-colors"
+              >
+                OPEN DISPATCH
+              </button>
+            </div>
+
             <AlertPanel
               alerts={alerts}
               onDismiss={dismissAlert}
@@ -192,10 +239,48 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-guardian-bg text-slate-100 flex flex-col font-sans selection:bg-guardian-accent selection:text-black relative">
-      <Header isRelayActive={isRelayActive} peerCount={peerCount} />
+      <Header
+        isRelayActive={isRelayActive}
+        peerCount={peerCount}
+        currentRole={userRole}
+        onRoleChange={setUserRole}
+      />
       <OnboardingModal />
 
       <main className="flex-1 pt-16 pb-28 px-3 max-w-lg mx-auto w-full relative">
+        {/* Tactical Operational Role Switcher Banner */}
+        <div className="w-full flex items-center justify-between mb-3 bg-black/50 border border-white/10 rounded-xl p-1.5 font-mono text-[11px] shadow-md">
+          <div className="flex items-center gap-1.5 pl-1.5 text-guardian-muted">
+            <span className={`w-2 h-2 rounded-full ${userRole === 'volunteer' ? 'bg-[#FF6600]' : 'bg-guardian-cyan'} animate-pulse`} />
+            <span className="text-[10px] tracking-wider uppercase hidden xs:inline">ROLE:</span>
+          </div>
+
+          <div className="flex items-center gap-1 bg-black/60 p-0.5 rounded-lg border border-white/5">
+            <button
+              onClick={() => setUserRole('volunteer')}
+              className={`px-2.5 py-1 rounded-md font-bold transition-all flex items-center gap-1.5 ${
+                userRole === 'volunteer'
+                  ? 'bg-[#FF6600] text-black shadow-[0_0_8px_rgba(255,102,0,0.3)]'
+                  : 'text-guardian-muted hover:text-white'
+              }`}
+            >
+              <Shield size={12} />
+              <span>FIELD NODE</span>
+            </button>
+            <button
+              onClick={() => setUserRole('organizer')}
+              className={`px-2.5 py-1 rounded-md font-bold transition-all flex items-center gap-1.5 ${
+                userRole === 'organizer'
+                  ? 'bg-guardian-cyan text-black shadow-[0_0_8px_rgba(34,211,238,0.3)]'
+                  : 'text-guardian-muted hover:text-white'
+              }`}
+            >
+              <LayoutDashboard size={12} />
+              <span>CONTROL ROOM</span>
+            </button>
+          </div>
+        </div>
+
         <AnimatePresence mode="wait">
           {renderTabContent()}
         </AnimatePresence>
@@ -206,28 +291,33 @@ export default function HomePage() {
         <div className="rounded-2xl p-1.5 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.8)] bg-guardian-surface/80 backdrop-blur-md flex items-center justify-between gap-1">
           {/* Scanner Tab */}
           <button
-            onClick={() => setActiveTab('scanner')}
+            onClick={() => {
+              setUserRole('volunteer');
+              setActiveTab('scanner');
+            }}
             className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all ${
-              activeTab === 'scanner'
+              userRole === 'volunteer' && activeTab === 'scanner'
                 ? 'bg-gradient-to-b from-[#FF6600]/20 to-red-600/20 border border-[#FF6600]/60 shadow-[0_0_15px_rgba(255,102,0,0.3)]'
                 : 'border border-transparent text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <Camera className={`w-5 h-5 ${activeTab === 'scanner' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
+            <Camera className={`w-5 h-5 ${userRole === 'volunteer' && activeTab === 'scanner' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
             <span className="text-[9px] font-mono font-bold tracking-widest uppercase">Scanner</span>
           </button>
 
           {/* Dispatch/Alerts Tab */}
           <button
-            onClick={() => setActiveTab('alerts')}
+            onClick={() => {
+              setActiveTab('alerts');
+            }}
             className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all ${
-              activeTab === 'alerts'
+              activeTab === 'alerts' && userRole === 'volunteer'
                 ? 'bg-gradient-to-b from-[#FF6600]/20 to-red-600/20 border border-[#FF6600]/60 shadow-[0_0_15px_rgba(255,102,0,0.3)]'
                 : 'border border-transparent text-zinc-500 hover:text-zinc-300'
             }`}
           >
             <div className="relative">
-              <ShieldAlert className={`w-5 h-5 ${activeTab === 'alerts' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
+              <ShieldAlert className={`w-5 h-5 ${activeTab === 'alerts' && userRole === 'volunteer' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
               {alerts.length > 0 && (
                 <span className="absolute -top-1.5 -right-2 bg-guardian-red text-white text-[10px] font-bold px-1.5 rounded-full border border-black min-w-[18px] text-center">
                   {alerts.length}
@@ -239,27 +329,33 @@ export default function HomePage() {
 
           {/* Mesh P2P Tab */}
           <button
-            onClick={() => setActiveTab('mesh')}
+            onClick={() => {
+              setUserRole('volunteer');
+              setActiveTab('mesh');
+            }}
             className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all ${
-              activeTab === 'mesh'
+              userRole === 'volunteer' && activeTab === 'mesh'
                 ? 'bg-gradient-to-b from-[#FF6600]/20 to-red-600/20 border border-[#FF6600]/60 shadow-[0_0_15px_rgba(255,102,0,0.3)]'
                 : 'border border-transparent text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <Radio className={`w-5 h-5 ${activeTab === 'mesh' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
+            <Radio className={`w-5 h-5 ${userRole === 'volunteer' && activeTab === 'mesh' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
             <span className="text-[9px] font-mono font-bold tracking-widest uppercase">Relay</span>
           </button>
 
           {/* SOS Tab */}
           <button
-            onClick={() => setActiveTab('sos')}
+            onClick={() => {
+              setUserRole('volunteer');
+              setActiveTab('sos');
+            }}
             className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all ${
-              activeTab === 'sos'
+              userRole === 'volunteer' && activeTab === 'sos'
                 ? 'bg-gradient-to-b from-[#FF6600]/20 to-red-600/20 border border-[#FF6600]/60 shadow-[0_0_15px_rgba(255,102,0,0.3)]'
                 : 'border border-transparent text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <AlertTriangle className={`w-5 h-5 ${activeTab === 'sos' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
+            <AlertTriangle className={`w-5 h-5 ${userRole === 'volunteer' && activeTab === 'sos' ? 'text-[#FF6600] drop-shadow-[0_0_8px_rgba(255,102,0,0.8)]' : ''}`} />
             <span className="text-[9px] font-mono font-bold tracking-widest uppercase">SOS</span>
           </button>
         </div>
